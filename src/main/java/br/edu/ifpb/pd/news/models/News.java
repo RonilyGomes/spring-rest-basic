@@ -1,5 +1,6 @@
 package br.edu.ifpb.pd.news.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -29,6 +30,7 @@ public class News implements Serializable{
     
     private String title;
     
+    @JsonFormat(pattern="dd/MM/Y HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
     private Date postDate;
     
