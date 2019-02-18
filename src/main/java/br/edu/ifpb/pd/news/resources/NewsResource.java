@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,23 +33,23 @@ public class NewsResource {
     @Autowired
     NewsRepository newsRepository;
       
-    @GetMapping("/news")
+    @GetMapping(value="/news", produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAll(){        
         return Utils.response(HttpStatus.OK, newsRepository.findAll());
     }
     
-    @GetMapping(value="/news", params={"id"})
+    @GetMapping(value="/news", params={"id"}, produces=MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<?> getById(@RequestParam(value="id", required=true) Long id){
         Optional<News> news = newsRepository.findById(id);
         
-        if (news == null) {
-            return Utils.response(HttpStatus.NOT_FOUND, null);    
+        if (!news.isPresent()) {
+            return Utils.responseAsHtml(HttpStatus.NOT_FOUND, null);
         }
-        
-        return Utils.response(HttpStatus.OK, news);
+       
+        return Utils.responseAsHtml(HttpStatus.OK, news.get());
     }
     
-    @PostMapping("/news")
+    @PostMapping(value="/news", produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> store(@RequestParam Map<String, String> request) {
         News news = newsRepository.findByTitle(request.get("title"));
         
@@ -57,30 +58,36 @@ public class NewsResource {
         }
         
         news = new News(
-                request.get("author"),
-                request.get("title"), 
-                request.get("content")
+            request.get("author"),
+            request.get("title"), 
+            request.get("content")
         );
         newsRepository.save(news);
         
         return Utils.response(HttpStatus.CREATED, news);
     }
     
-    @PutMapping("/news/{id}")
-    public ResponseEntity<?> update(@PathVariable(value="id") long id, @RequestParam Map<String, String> request) {
-        News news = newsRepository.findById(id);
+    @PutMapping(value="/news/{id:[0-9]+}/title/{title}", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> update(@PathVariable("id") long id, @PathVariable("title") String title) {
+        News news = newsRepository.findByTitle(title);
+        
+        if (news != null) {
+            return Utils.response(HttpStatus.CONFLICT, news);
+        }
+        
+        news = newsRepository.findById(id);
         
         if (news == null) {
             return Utils.response(HttpStatus.NOT_FOUND, null);
         }
-        
-        news.setTitle(request.get("title"));
+         
+        news.setTitle(title);
         newsRepository.save(news);
         
         return Utils.response(HttpStatus.OK, news);
     }
     
-    @DeleteMapping("/news/{id}")
+    @DeleteMapping(value="/news/{id}", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<?> deletaProduto(@PathVariable(value="id") long id) {
         News news = newsRepository.findById(id);
         

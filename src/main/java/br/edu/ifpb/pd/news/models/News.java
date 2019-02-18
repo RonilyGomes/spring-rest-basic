@@ -11,11 +11,17 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author Ronily Gomes e Matheus Augusto
  */
+@XmlRootElement(name = "news")
+@XmlAccessorType(XmlAccessType.FIELD)
 @Entity
 @Table(name="TB_NEWS")
 public class News implements Serializable{
@@ -24,17 +30,22 @@ public class News implements Serializable{
     
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
+    @XmlElement
     private long id;
     
+    @XmlElement
     private String author;
     
+    @XmlElement
     private String title;
     
     @JsonFormat(pattern="dd/MM/Y HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
+    @XmlElement
     private Date postDate;
     
     @Column(columnDefinition = "TEXT")
+    @XmlElement
     private String content;
     
     public News() {}
